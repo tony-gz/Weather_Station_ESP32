@@ -73,7 +73,8 @@ header{padding:32px 0 24px;display:flex;align-items:center;justify-content:space
 
 /* ── ROSA DE LOS VIENTOS ── */
 .card-rosa{grid-column:span 1;display:flex;flex-direction:column;align-items:center;justify-content:center;--card-accent:var(--wind);}
-#rosa-svg{width:110px;height:110px;transition:transform .6s cubic-bezier(.34,1.56,.64,1);}
+#rosa-svg{width:110px;height:110px;}
+#rosa-flecha{transition:transform .8s cubic-bezier(.34,1.56,.64,1);transform-origin:50px 50px;transform-box:fill-box;}
 
 /* ── TIMESTAMP ── */
 #ultima-act{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);text-align:right;margin-bottom:28px;}
@@ -364,22 +365,47 @@ function drawSun() {
   ctx.beginPath(); ctx.arc(sunX, sunY, 16, 0, Math.PI*2); ctx.fill();
 }
 
-function drawClouds(t) {
+function drawCloud(cx, cy, w, h, alpha) {
+  // Sombra inferior suave
+  ctx.fillStyle = `rgba(100,120,160,${alpha * 0.35})`;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + h*0.55, w*0.48, h*0.22, 0, 0, Math.PI*2);
+  ctx.fill();
+
+  // Base plana de la nube
+  ctx.fillStyle = `rgba(220,230,245,${alpha * 0.7})`;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy + h*0.25, w*0.48, h*0.32, 0, 0, Math.PI*2);
+  ctx.fill();
+
+  // Cúpulas superiores — varias esferas solapadas
+  const bumps = [
+    { ox: -w*0.28, oy: 0,       rx: w*0.22, ry: h*0.42 },
+    { ox:  w*0.28, oy: 0,       rx: w*0.22, ry: h*0.38 },
+    { ox:  0,      oy:-h*0.08,  rx: w*0.26, ry: h*0.50 },
+    { ox: -w*0.12, oy:-h*0.04,  rx: w*0.18, ry: h*0.40 },
+    { ox:  w*0.14, oy:-h*0.06,  rx: w*0.20, ry: h*0.44 },
+  ];
+  bumps.forEach(b => {
+    ctx.fillStyle = `rgba(240,246,255,${alpha * 0.85})`;
+    ctx.beginPath();
+    ctx.ellipse(cx + b.ox, cy + b.oy, b.rx, b.ry, 0, 0, Math.PI*2);
+    ctx.fill();
+  });
+
+  // Brillo superior (reflejo de luz)
+  ctx.fillStyle = `rgba(255,255,255,${alpha * 0.55})`;
+  ctx.beginPath();
+  ctx.ellipse(cx - w*0.06, cy - h*0.12, w*0.16, h*0.22, -0.3, 0, Math.PI*2);
+  ctx.fill();
+}
+
+function drawClouds() {
   clouds.forEach(c => {
     c.x += c.speed;
     if (c.x > canvas.width + c.w) c.x = -c.w;
-
-    const alpha = skyState === 'day' ? c.alpha : c.alpha * 2.5;
-    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
-    ctx.beginPath();
-    ctx.ellipse(c.x, c.y, c.w/2, c.h/2, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(c.x - c.w*0.25, c.y + c.h*0.1, c.w*0.3, c.h*0.45, 0, 0, Math.PI*2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(c.x + c.w*0.25, c.y + c.h*0.1, c.w*0.35, c.h*0.4, 0, 0, Math.PI*2);
-    ctx.fill();
+    const alpha = skyState === 'day' ? c.alpha : c.alpha * 2.2;
+    drawCloud(c.x, c.y, c.w, c.h, alpha);
   });
 }
 
@@ -413,7 +439,7 @@ function drawStars(t) {
 function animateSky(t) {
   drawSky();
   drawSun();
-  drawClouds(t);
+  drawClouds();
   if (skyState === 'rain' || skyState === 'storm') drawRain();
   if (skyState === 'night') drawStars(t);
   animFrame = requestAnimationFrame(animateSky);
@@ -498,10 +524,19 @@ function generarAlertas(d) {
 
 // ════════════════════════════════════════════
 //  ROSA DE LOS VIENTOS
+//  El sensor devuelve grados donde 0=Norte, 90=Este, 180=Sur, 270=Oeste
+//  La flecha SVG apunta hacia arriba (Norte) por defecto
+//  Rotamos el grupo de la flecha el mismo valor en grados
 // ════════════════════════════════════════════
+let anguloActual = 0;
 function actualizarRosa(grados) {
+  // Interpolación del ángulo más corta para evitar giros de 350° al cruzar 0/360
+  let diff = grados - anguloActual;
+  if (diff > 180)  diff -= 360;
+  if (diff < -180) diff += 360;
+  anguloActual += diff;
   const flecha = document.getElementById('rosa-flecha');
-  flecha.setAttribute('transform', `rotate(${grados}, 50, 50)`);
+  flecha.style.transform = `rotate(${anguloActual}deg)`;
 }
 
 // ════════════════════════════════════════════
