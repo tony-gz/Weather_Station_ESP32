@@ -7,600 +7,580 @@
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <style>
-  :root {
-    --bg:        #0a0e1a;
-    --bg2:       #111827;
-    --bg3:       #1a2235;
-    --border:    rgba(255,255,255,0.07);
-    --accent:    #38bdf8;
-    --accent2:   #818cf8;
-    --warm:      #fb923c;
-    --cold:      #60a5fa;
-    --rain:      #34d399;
-    --wind:      #a78bfa;
-    --danger:    #f87171;
-    --text:      #f1f5f9;
-    --muted:     #64748b;
-    --card-r:    16px;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  html { scroll-behavior: smooth; }
+:root {
+  --bg:#0a0e1a;--bg2:#111827;--bg3:#1a2235;
+  --border:rgba(255,255,255,0.07);
+  --accent:#38bdf8;--accent2:#818cf8;
+  --warm:#fb923c;--cold:#60a5fa;--rain:#34d399;--wind:#a78bfa;--danger:#f87171;
+  --text:#f1f5f9;--muted:#64748b;--card-r:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* ── FONDO DINÁMICO ── */
+#sky-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.55;transition:opacity 1s;}
+.wrapper{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:0 20px 60px;}
 
-  /* Fondo animado */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 50% at 20% 10%, rgba(56,189,248,0.07) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(129,140,248,0.06) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
+/* ── HEADER ── */
+header{padding:32px 0 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);margin-bottom:32px;flex-wrap:wrap;gap:12px;}
+.logo{font-family:'Space Mono',monospace;font-size:13px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;}
+.logo span{color:var(--muted);}
+.header-right{display:flex;align-items:center;gap:16px;}
+#estado-conexion{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);font-family:'Space Mono',monospace;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--muted);transition:background .4s;}
+.dot.vivo{background:var(--rain);box-shadow:0 0 8px var(--rain);animation:pulso 2s infinite;}
+@keyframes pulso{0%,100%{opacity:1}50%{opacity:.5}}
+#btn-fullscreen{background:none;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 12px;cursor:pointer;font-family:'Space Mono',monospace;font-size:11px;transition:all .2s;}
+#btn-fullscreen:hover{border-color:var(--accent);color:var(--accent);}
 
-  .wrapper { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 20px 60px; }
+/* ── BANNER ALERTA ── */
+#banner-alerta{display:none;background:linear-gradient(135deg,rgba(248,113,113,.15),rgba(251,146,60,.1));border:1px solid rgba(248,113,113,.3);border-radius:var(--card-r);padding:16px 20px;margin-bottom:24px;font-size:14px;line-height:1.7;color:#fca5a5;}
+#banner-alerta.visible{display:block;animation:slideDown .4s ease;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
 
-  /* Header */
-  header {
-    padding: 32px 0 24px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 32px;
-  }
-  .logo {
-    font-family: 'Space Mono', monospace;
-    font-size: 13px;
-    color: var(--accent);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-  }
-  .logo span { color: var(--muted); }
-  #estado-conexion {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 13px;
-    color: var(--muted);
-    font-family: 'Space Mono', monospace;
-  }
-  .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--muted);
-    transition: background 0.4s;
-  }
-  .dot.vivo { background: var(--rain); box-shadow: 0 0 8px var(--rain); animation: pulso 2s infinite; }
-  @keyframes pulso { 0%,100%{opacity:1} 50%{opacity:0.5} }
+/* ── FRASE CARD ── */
+#frase-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--card-r);padding:20px 24px;margin-bottom:28px;display:flex;align-items:center;gap:16px;transition:all .5s ease;}
+#frase-icon{font-size:32px;flex-shrink:0;}
+#frase-texto{font-size:16px;font-weight:300;color:var(--text);line-height:1.5;}
+#frase-texto strong{font-weight:500;color:var(--accent);}
 
-  /* Banner de alerta */
-  #banner-alerta {
-    display: none;
-    background: linear-gradient(135deg, rgba(248,113,113,0.15), rgba(251,146,60,0.1));
-    border: 1px solid rgba(248,113,113,0.3);
-    border-radius: var(--card-r);
-    padding: 16px 20px;
-    margin-bottom: 24px;
-    font-size: 14px;
-    line-height: 1.7;
-    color: #fca5a5;
-  }
-  #banner-alerta.visible { display: block; animation: slideDown 0.4s ease; }
-  @keyframes slideDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
+/* ── RACHA ── */
+#racha-bar{display:flex;gap:12px;margin-bottom:28px;flex-wrap:wrap;}
+.racha-item{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:12px 18px;font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px;}
+.racha-item .racha-val{font-size:22px;font-weight:700;color:var(--text);}
+.racha-item .racha-label{letter-spacing:.08em;text-transform:uppercase;}
 
-  /* Tarjeta de frase */
-  #frase-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--card-r);
-    padding: 20px 24px;
-    margin-bottom: 28px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    transition: all 0.5s ease;
-  }
-  #frase-icon { font-size: 32px; flex-shrink: 0; }
-  #frase-texto { font-size: 16px; font-weight: 300; color: var(--text); line-height: 1.5; }
-  #frase-texto strong { font-weight: 500; color: var(--accent); }
+/* ── GRID SENSORES ── */
+.grid-sensores{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;margin-bottom:28px;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--card-r);padding:20px;transition:border-color .3s,transform .2s;position:relative;overflow:hidden;}
+.card:hover{border-color:rgba(255,255,255,.15);transform:translateY(-2px);}
+.card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--card-accent,var(--accent));opacity:.7;}
+.card-label{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.card-valor{font-family:'Space Mono',monospace;font-size:32px;font-weight:700;color:var(--text);line-height:1;margin-bottom:4px;transition:color .4s;}
+.card-unidad{font-size:14px;font-weight:400;color:var(--muted);margin-left:4px;}
+.card-sub{font-size:12px;color:var(--muted);margin-top:8px;}
+.card-temp{--card-accent:var(--warm);}
+.card-hum{--card-accent:var(--accent);}
+.card-pres{--card-accent:var(--accent2);}
+.card-viento{--card-accent:var(--wind);}
+.card-dir{--card-accent:var(--wind);}
+.card-lluvia{--card-accent:var(--rain);}
 
-  /* Grid principal */
-  .grid-sensores {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 28px;
-  }
+/* ── TRANSICIÓN NUMÉRICA ── */
+.card-valor.actualizando{animation:flash .4s ease;}
+@keyframes flash{0%{opacity:.3}100%{opacity:1}}
 
-  .card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--card-r);
-    padding: 20px;
-    transition: border-color 0.3s, transform 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
-  .card:hover { border-color: rgba(255,255,255,0.15); transform: translateY(-2px); }
-  .card::after {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--card-accent, var(--accent));
-    opacity: 0.7;
-  }
+/* ── ROSA DE LOS VIENTOS ── */
+.card-rosa{grid-column:span 1;display:flex;flex-direction:column;align-items:center;justify-content:center;--card-accent:var(--wind);}
+#rosa-svg{width:110px;height:110px;transition:transform .6s cubic-bezier(.34,1.56,.64,1);}
 
-  .card-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 12px;
-  }
-  .card-valor {
-    font-family: 'Space Mono', monospace;
-    font-size: 32px;
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-  .card-unidad { font-size: 14px; font-weight: 400; color: var(--muted); margin-left: 4px; }
-  .card-sub { font-size: 12px; color: var(--muted); margin-top: 8px; }
+/* ── TIMESTAMP ── */
+#ultima-act{font-family:'Space Mono',monospace;font-size:11px;color:var(--muted);text-align:right;margin-bottom:28px;}
 
-  /* Colores por tarjeta */
-  .card-temp   { --card-accent: var(--warm); }
-  .card-hum    { --card-accent: var(--accent); }
-  .card-pres   { --card-accent: var(--accent2); }
-  .card-viento { --card-accent: var(--wind); }
-  .card-dir    { --card-accent: var(--wind); }
-  .card-lluvia { --card-accent: var(--rain); }
+/* ── SECCIÓN ── */
+.seccion-titulo{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;gap:12px;}
+.seccion-titulo::after{content:'';flex:1;height:1px;background:var(--border);}
 
-  /* Timestamp */
-  #ultima-act {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
-    text-align: right;
-    margin-bottom: 28px;
-  }
+/* ── RANGOS ── */
+.rango-btns{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+.btn-rango{font-family:'Space Mono',monospace;font-size:11px;padding:6px 14px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:.05em;}
+.btn-rango:hover,.btn-rango.activo{border-color:var(--accent);color:var(--accent);background:rgba(56,189,248,.08);}
 
-  /* Sección graficas */
-  .seccion-titulo {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .seccion-titulo::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
+/* ── GRÁFICAS ── */
+.grid-graficas{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px;}
+@media(max-width:700px){.grid-graficas{grid-template-columns:1fr;}}
+.card-grafica{background:var(--bg2);border:1px solid var(--border);border-radius:var(--card-r);padding:20px;}
+.card-grafica-titulo{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;}
 
-  /* Selector de rango */
-  .rango-btns {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
-  .btn-rango {
-    font-family: 'Space Mono', monospace;
-    font-size: 11px;
-    padding: 6px 14px;
-    border-radius: 6px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--muted);
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.05em;
-  }
-  .btn-rango:hover, .btn-rango.activo {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(56,189,248,0.08);
-  }
+/* ── TABLA ── */
+.tabla-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--card-r);overflow:hidden;margin-bottom:28px;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead tr{background:var(--bg3);}
+th{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:12px 16px;text-align:left;border-bottom:1px solid var(--border);}
+td{padding:11px 16px;border-bottom:1px solid var(--border);color:var(--text);}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:rgba(255,255,255,.02);}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-family:'Space Mono',monospace;}
+.cargando{text-align:center;padding:60px;color:var(--muted);font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.1em;}
+.spinner{display:inline-block;width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px;}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-  /* Grid de gráficas */
-  .grid-graficas {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-  @media (max-width: 700px) { .grid-graficas { grid-template-columns: 1fr; } }
+/* ── FULLSCREEN ── */
+:fullscreen #sky-canvas{opacity:.7;}
+:fullscreen .wrapper{max-width:100%;padding:0 32px 32px;}
 
-  .card-grafica {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--card-r);
-    padding: 20px;
-  }
-  .card-grafica-titulo {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 16px;
-  }
-  .card-grafica canvas { width: 100% !important; }
-
-  /* Tabla */
-  .tabla-wrap {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--card-r);
-    overflow: hidden;
-    margin-bottom: 28px;
-  }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead tr { background: var(--bg3); }
-  th {
-    font-family: 'Space Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 12px 16px;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-  }
-  td { padding: 11px 16px; border-bottom: 1px solid var(--border); color: var(--text); }
-  tbody tr:last-child td { border-bottom: none; }
-  tbody tr:hover { background: rgba(255,255,255,0.02); }
-  .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-family: 'Space Mono', monospace;
-  }
-
-  /* Cargando */
-  .cargando {
-    text-align: center;
-    padding: 60px;
-    color: var(--muted);
-    font-family: 'Space Mono', monospace;
-    font-size: 13px;
-    letter-spacing: 0.1em;
-  }
-  .spinner {
-    display: inline-block;
-    width: 20px; height: 20px;
-    border: 2px solid var(--border);
-    border-top-color: var(--accent);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-bottom: 16px;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Responsive */
-  @media (max-width: 500px) {
-    .grid-sensores { grid-template-columns: 1fr 1fr; }
-    .card-valor { font-size: 26px; }
-    header { flex-direction: column; align-items: flex-start; gap: 12px; }
-  }
+@media(max-width:500px){
+  .grid-sensores{grid-template-columns:1fr 1fr;}
+  .card-valor{font-size:26px;}
+  header{flex-direction:column;align-items:flex-start;}
+}
 </style>
 </head>
 <body>
+<canvas id="sky-canvas"></canvas>
 <div class="wrapper">
 
-  <header>
-    <div class="logo">Estación Meteorológica <span>/ Chilpancingo, Gro.</span></div>
+<header>
+  <div class="logo">Estación Meteorológica <span>/ Chilpancingo, Gro.</span></div>
+  <div class="header-right">
+    <button id="btn-fullscreen" onclick="toggleFullscreen()">⛶ Pantalla completa</button>
     <div id="estado-conexion"><div class="dot" id="dot"></div><span id="estado-txt">Conectando...</span></div>
-  </header>
-
-  <div id="banner-alerta"></div>
-
-  <div id="frase-card" class="frase-card">
-    <div id="frase-icon">🌡️</div>
-    <div id="frase-texto">Cargando datos...</div>
   </div>
+</header>
 
-  <div class="grid-sensores" id="grid-sensores">
-    <div class="card card-temp">
-      <div class="card-label">Temperatura</div>
-      <div class="card-valor" id="val-temp">--<span class="card-unidad">°C</span></div>
-      <div class="card-sub" id="sub-temp">—</div>
-    </div>
-    <div class="card card-hum">
-      <div class="card-label">Humedad</div>
-      <div class="card-valor" id="val-hum">--<span class="card-unidad">%</span></div>
-      <div class="card-sub" id="sub-hum">—</div>
-    </div>
-    <div class="card card-pres">
-      <div class="card-label">Presión</div>
-      <div class="card-valor" id="val-pres">--<span class="card-unidad">hPa</span></div>
-      <div class="card-sub">Presión atmosférica</div>
-    </div>
-    <div class="card card-viento">
-      <div class="card-label">Viento</div>
-      <div class="card-valor" id="val-viento">--<span class="card-unidad">km/h</span></div>
-      <div class="card-sub" id="sub-viento">—</div>
-    </div>
-    <div class="card card-dir">
-      <div class="card-label">Dirección</div>
-      <div class="card-valor" id="val-dir">--</div>
-      <div class="card-sub" id="sub-dir">—</div>
-    </div>
-    <div class="card card-lluvia">
-      <div class="card-label">Lluvia</div>
-      <div class="card-valor" id="val-lluvia">--<span class="card-unidad">mm</span></div>
-      <div class="card-sub" id="sub-lluvia">—</div>
-    </div>
-  </div>
+<div id="banner-alerta"></div>
 
-  <div id="ultima-act">Última actualización: —</div>
-
-  <!-- Gráficas -->
-  <div class="seccion-titulo">Historial</div>
-
-  <div class="rango-btns">
-    <button class="btn-rango activo" onclick="cambiarRango(6, this)">6h</button>
-    <button class="btn-rango" onclick="cambiarRango(24, this)">24h</button>
-    <button class="btn-rango" onclick="cambiarRango(72, this)">3 días</button>
-    <button class="btn-rango" onclick="cambiarRango(168, this)">7 días</button>
-  </div>
-
-  <div class="grid-graficas">
-    <div class="card-grafica">
-      <div class="card-grafica-titulo">Temperatura (°C)</div>
-      <canvas id="chart-temp" height="160"></canvas>
-    </div>
-    <div class="card-grafica">
-      <div class="card-grafica-titulo">Humedad (%)</div>
-      <canvas id="chart-hum" height="160"></canvas>
-    </div>
-    <div class="card-grafica">
-      <div class="card-grafica-titulo">Presión (hPa)</div>
-      <canvas id="chart-pres" height="160"></canvas>
-    </div>
-    <div class="card-grafica">
-      <div class="card-grafica-titulo">Viento (km/h)</div>
-      <canvas id="chart-viento" height="160"></canvas>
-    </div>
-  </div>
-
-  <!-- Tabla -->
-  <div class="seccion-titulo">Registros recientes</div>
-  <div class="tabla-wrap">
-    <div id="tabla-cargando" class="cargando">
-      <div class="spinner"></div><br>Cargando registros...
-    </div>
-    <table id="tabla" style="display:none">
-      <thead>
-        <tr>
-          <th>Fecha / Hora</th>
-          <th>Temp.</th>
-          <th>Humedad</th>
-          <th>Presión</th>
-          <th>Viento</th>
-          <th>Dirección</th>
-          <th>Lluvia</th>
-        </tr>
-      </thead>
-      <tbody id="tabla-body"></tbody>
-    </table>
-  </div>
-
+<div id="frase-card">
+  <div id="frase-icon">🌡️</div>
+  <div id="frase-texto">Cargando datos...</div>
 </div>
 
-<!-- Firebase SDKs -->
+<!-- Racha -->
+<div id="racha-bar">
+  <div class="racha-item">
+    <span class="racha-label">Días sin lluvia</span>
+    <span class="racha-val" id="dias-sin-lluvia">—</span>
+  </div>
+  <div class="racha-item">
+    <span class="racha-label">Racha de calor</span>
+    <span class="racha-val" id="racha-calor">—</span>
+  </div>
+  <div class="racha-item">
+    <span class="racha-label">Temp. máx. hoy</span>
+    <span class="racha-val" id="temp-max-hoy">—</span>
+  </div>
+  <div class="racha-item">
+    <span class="racha-label">Temp. mín. hoy</span>
+    <span class="racha-val" id="temp-min-hoy">—</span>
+  </div>
+</div>
+
+<!-- Tarjetas sensores -->
+<div class="grid-sensores" id="grid-sensores">
+  <div class="card card-temp">
+    <div class="card-label">Temperatura</div>
+    <div class="card-valor" id="val-temp">--<span class="card-unidad">°C</span></div>
+    <div class="card-sub" id="sub-temp">—</div>
+  </div>
+  <div class="card card-hum">
+    <div class="card-label">Humedad</div>
+    <div class="card-valor" id="val-hum">--<span class="card-unidad">%</span></div>
+    <div class="card-sub" id="sub-hum">—</div>
+  </div>
+  <div class="card card-pres">
+    <div class="card-label">Presión</div>
+    <div class="card-valor" id="val-pres">--<span class="card-unidad">hPa</span></div>
+    <div class="card-sub">Presión atmosférica</div>
+  </div>
+  <div class="card card-viento">
+    <div class="card-label">Viento</div>
+    <div class="card-valor" id="val-viento">--<span class="card-unidad">km/h</span></div>
+    <div class="card-sub" id="sub-viento">—</div>
+  </div>
+  <!-- Rosa de los vientos -->
+  <div class="card card-dir card-rosa">
+    <div class="card-label">Dirección</div>
+    <svg id="rosa-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <!-- Círculo base -->
+      <circle cx="50" cy="50" r="44" fill="none" stroke="rgba(167,139,250,0.2)" stroke-width="1"/>
+      <circle cx="50" cy="50" r="30" fill="none" stroke="rgba(167,139,250,0.1)" stroke-width="1"/>
+      <!-- Puntos cardinales -->
+      <text x="50" y="10" text-anchor="middle" fill="#64748b" font-size="8" font-family="Space Mono">N</text>
+      <text x="50" y="96" text-anchor="middle" fill="#64748b" font-size="8" font-family="Space Mono">S</text>
+      <text x="6"  y="53" text-anchor="middle" fill="#64748b" font-size="8" font-family="Space Mono">O</text>
+      <text x="94" y="53" text-anchor="middle" fill="#64748b" font-size="8" font-family="Space Mono">E</text>
+      <!-- Flecha (apunta hacia arriba = Norte por defecto) -->
+      <g id="rosa-flecha" transform-origin="50 50">
+        <polygon points="50,16 44,50 50,44 56,50" fill="#a78bfa"/>
+        <polygon points="50,84 44,50 50,56 56,50" fill="rgba(167,139,250,0.3)"/>
+      </g>
+    </svg>
+    <div class="card-sub" id="sub-dir-deg">—</div>
+  </div>
+  <div class="card card-lluvia">
+    <div class="card-label">Lluvia</div>
+    <div class="card-valor" id="val-lluvia">--<span class="card-unidad">mm</span></div>
+    <div class="card-sub" id="sub-lluvia">—</div>
+  </div>
+</div>
+
+<div id="ultima-act">Última actualización: —</div>
+
+<!-- Gráficas -->
+<div class="seccion-titulo">Historial</div>
+<div class="rango-btns">
+  <button class="btn-rango activo" onclick="cambiarRango(6,this)">6h</button>
+  <button class="btn-rango" onclick="cambiarRango(24,this)">24h</button>
+  <button class="btn-rango" onclick="cambiarRango(72,this)">3 días</button>
+  <button class="btn-rango" onclick="cambiarRango(168,this)">7 días</button>
+</div>
+<div class="grid-graficas">
+  <div class="card-grafica"><div class="card-grafica-titulo">Temperatura (°C)</div><canvas id="chart-temp" height="160"></canvas></div>
+  <div class="card-grafica"><div class="card-grafica-titulo">Humedad (%)</div><canvas id="chart-hum" height="160"></canvas></div>
+  <div class="card-grafica"><div class="card-grafica-titulo">Presión (hPa)</div><canvas id="chart-pres" height="160"></canvas></div>
+  <div class="card-grafica"><div class="card-grafica-titulo">Viento (km/h)</div><canvas id="chart-viento" height="160"></canvas></div>
+</div>
+
+<!-- Tabla -->
+<div class="seccion-titulo">Registros recientes</div>
+<div class="tabla-wrap">
+  <div id="tabla-cargando" class="cargando"><div class="spinner"></div><br>Cargando registros...</div>
+  <table id="tabla" style="display:none">
+    <thead><tr><th>Fecha / Hora</th><th>Temp.</th><th>Humedad</th><th>Presión</th><th>Viento</th><th>Dirección</th><th>Lluvia</th></tr></thead>
+    <tbody id="tabla-body"></tbody>
+  </table>
+</div>
+
+</div><!-- /wrapper -->
+
 <script type="module">
-import { initializeApp }         from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { initializeApp }    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getDatabase, ref, onValue, query, orderByKey, limitToLast }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// ——— TU CONFIGURACIÓN FIREBASE ———
-// Cámbiala por la tuya en Firebase Console → Configuración del proyecto → Tu app web
-//const firebaseConfig = {
-  //apiKey:            "TU_API_KEY",
-//  authDomain:        "TU_PROYECTO.firebaseapp.com",
-//  databaseURL:       "https://weatherstation-esp32-fbc62-default-rtdb.firebaseio.com",
-//  projectId:         "TU_PROYECTO",
-//  storageBucket:     "TU_PROYECTO.appspot.com",
-//  messagingSenderId: "TU_SENDER_ID",
-//  appId:             "TU_APP_ID"
-//};
-
 const firebaseConfig = {
-  apiKey: "AIzaSyCj1qpBCEkN4W9aGbWXhfrie6Cs08LXF-M",
-  authDomain: "weatherstation-esp32-fbc62.firebaseapp.com",
-  databaseURL: "https://weatherstation-esp32-fbc62-default-rtdb.firebaseio.com",
-  projectId: "weatherstation-esp32-fbc62",
-  storageBucket: "weatherstation-esp32-fbc62.firebasestorage.app",
-  messagingSenderId: "326771262914",
-  appId: "1:326771262914:web:d3f024268b0808bba8c25b"
+  apiKey:            "TU_API_KEY",
+  authDomain:        "TU_PROYECTO.firebaseapp.com",
+  databaseURL:       "https://weatherstation-esp32-fbc62-default-rtdb.firebaseio.com",
+  projectId:         "TU_PROYECTO",
+  storageBucket:     "TU_PROYECTO.appspot.com",
+  messagingSenderId: "TU_SENDER_ID",
+  appId:             "TU_APP_ID"
 };
-
 
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
 
-// ——— Umbrales Chilpancingo ———
-const UMBRAL = {
-  frio:        15,
-  calor:       30,
-  calorExtremo:35,
-  humedad:     80,
-  viento:      30,
+const UMBRAL = { frio:15, calor:30, calorExtremo:35, humedad:80, viento:30 };
+
+// ════════════════════════════════════════════
+//  FONDO DINÁMICO — Canvas
+// ════════════════════════════════════════════
+const canvas = document.getElementById('sky-canvas');
+const ctx    = canvas.getContext('2d');
+let skyState = 'day'; // day | night | rain | storm
+let particles = [];   // lluvia / estrellas
+let clouds = [];
+let animFrame;
+
+function resizeCanvas() {
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+function initClouds() {
+  clouds = Array.from({length: 5}, (_, i) => ({
+    x: Math.random() * canvas.width,
+    y: 40 + Math.random() * 120,
+    w: 120 + Math.random() * 180,
+    h: 40  + Math.random() * 40,
+    speed: 0.1 + Math.random() * 0.2,
+    alpha: 0.15 + Math.random() * 0.2,
+  }));
+}
+
+function initRain(count = 180) {
+  particles = Array.from({length: count}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    len:  8  + Math.random() * 14,
+    speed:6  + Math.random() * 8,
+    alpha:0.2 + Math.random() * 0.4,
+  }));
+}
+
+function initStars(count = 120) {
+  particles = Array.from({length: count}, () => ({
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height * 0.7,
+    r: 0.5 + Math.random() * 1.5,
+    alpha: 0.3 + Math.random() * 0.7,
+    twinkle: Math.random() * Math.PI * 2,
+  }));
+}
+
+function drawSky() {
+  const w = canvas.width, h = canvas.height;
+  let grad;
+
+  if (skyState === 'night') {
+    grad = ctx.createLinearGradient(0,0,0,h*0.6);
+    grad.addColorStop(0, '#020617');
+    grad.addColorStop(1, '#0f172a');
+  } else if (skyState === 'rain' || skyState === 'storm') {
+    grad = ctx.createLinearGradient(0,0,0,h*0.6);
+    grad.addColorStop(0, '#1e293b');
+    grad.addColorStop(1, '#334155');
+  } else {
+    // day — color según hora
+    const hr = new Date().getHours();
+    if (hr >= 6 && hr < 10) { // amanecer
+      grad = ctx.createLinearGradient(0,0,0,h*0.6);
+      grad.addColorStop(0,'#0c4a6e'); grad.addColorStop(0.5,'#7c3aed'); grad.addColorStop(1,'#f97316');
+    } else if (hr >= 18 && hr < 21) { // atardecer
+      grad = ctx.createLinearGradient(0,0,0,h*0.6);
+      grad.addColorStop(0,'#0f172a'); grad.addColorStop(0.5,'#7c2d12'); grad.addColorStop(1,'#fbbf24');
+    } else { // día normal
+      grad = ctx.createLinearGradient(0,0,0,h*0.6);
+      grad.addColorStop(0,'#0369a1'); grad.addColorStop(1,'#0ea5e9');
+    }
+  }
+
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle = grad;
+  ctx.fillRect(0,0,w,h*0.6);
+
+  // Degradado hacia transparente abajo
+  const fadeGrad = ctx.createLinearGradient(0, h*0.35, 0, h*0.65);
+  fadeGrad.addColorStop(0, 'rgba(0,0,0,0)');
+  fadeGrad.addColorStop(1, 'rgba(10,14,26,1)');
+  ctx.fillStyle = fadeGrad;
+  ctx.fillRect(0, h*0.35, w, h*0.35);
+}
+
+function drawSun() {
+  if (skyState !== 'day') return;
+  const hr = new Date().getHours();
+  if (hr < 6 || hr >= 20) return;
+  const progress = (hr - 6) / 14; // 0=amanecer 1=anochecer
+  const sunX = canvas.width  * (0.1 + progress * 0.8);
+  const sunY = canvas.height * (0.25 - Math.sin(progress * Math.PI) * 0.15);
+
+  // Halo
+  const halo = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, 80);
+  halo.addColorStop(0,  'rgba(253,224,71,0.35)');
+  halo.addColorStop(0.4,'rgba(253,186,116,0.15)');
+  halo.addColorStop(1,  'rgba(0,0,0,0)');
+  ctx.fillStyle = halo;
+  ctx.beginPath(); ctx.arc(sunX, sunY, 80, 0, Math.PI*2); ctx.fill();
+
+  // Sol
+  ctx.fillStyle = '#fde047';
+  ctx.beginPath(); ctx.arc(sunX, sunY, 22, 0, Math.PI*2); ctx.fill();
+  ctx.fillStyle = '#fef08a';
+  ctx.beginPath(); ctx.arc(sunX, sunY, 16, 0, Math.PI*2); ctx.fill();
+}
+
+function drawClouds(t) {
+  clouds.forEach(c => {
+    c.x += c.speed;
+    if (c.x > canvas.width + c.w) c.x = -c.w;
+
+    const alpha = skyState === 'day' ? c.alpha : c.alpha * 2.5;
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+    ctx.beginPath();
+    ctx.ellipse(c.x, c.y, c.w/2, c.h/2, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(c.x - c.w*0.25, c.y + c.h*0.1, c.w*0.3, c.h*0.45, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.ellipse(c.x + c.w*0.25, c.y + c.h*0.1, c.w*0.35, c.h*0.4, 0, 0, Math.PI*2);
+    ctx.fill();
+  });
+}
+
+function drawRain() {
+  ctx.strokeStyle = 'rgba(147,197,253,0.5)';
+  ctx.lineWidth = 1;
+  particles.forEach(p => {
+    p.y += p.speed;
+    p.x -= p.speed * 0.3;
+    if (p.y > canvas.height) { p.y = -p.len; p.x = Math.random() * canvas.width; }
+    ctx.globalAlpha = p.alpha;
+    ctx.beginPath();
+    ctx.moveTo(p.x, p.y);
+    ctx.lineTo(p.x - p.speed*0.3*0.8, p.y + p.len);
+    ctx.stroke();
+  });
+  ctx.globalAlpha = 1;
+}
+
+function drawStars(t) {
+  particles.forEach(p => {
+    p.twinkle += 0.02;
+    const a = p.alpha * (0.6 + 0.4 * Math.sin(p.twinkle));
+    ctx.fillStyle = `rgba(255,255,255,${a})`;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+    ctx.fill();
+  });
+}
+
+function animateSky(t) {
+  drawSky();
+  drawSun();
+  drawClouds(t);
+  if (skyState === 'rain' || skyState === 'storm') drawRain();
+  if (skyState === 'night') drawStars(t);
+  animFrame = requestAnimationFrame(animateSky);
+}
+
+function setSkyState(lluvia, viento, temp) {
+  const hr = new Date().getHours();
+  let newState;
+  if      (lluvia > 0 && viento > 30) newState = 'storm';
+  else if (lluvia > 0)                newState = 'rain';
+  else if (hr < 6 || hr >= 20)        newState = 'night';
+  else                                newState = 'day';
+
+  if (newState !== skyState) {
+    skyState = newState;
+    particles = [];
+    if (skyState === 'rain' || skyState === 'storm') initRain(skyState === 'storm' ? 280 : 180);
+    if (skyState === 'night') initStars();
+  }
+}
+
+initClouds();
+initStars();
+animateSky(0);
+
+// ════════════════════════════════════════════
+//  FULLSCREEN
+// ════════════════════════════════════════════
+window.toggleFullscreen = function() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen();
+    document.getElementById('btn-fullscreen').textContent = '✕ Salir';
+  } else {
+    document.exitFullscreen();
+    document.getElementById('btn-fullscreen').textContent = '⛶ Pantalla completa';
+  }
 };
 
-// ——— Frases contextuales ———
+// ════════════════════════════════════════════
+//  TRANSICIÓN NUMÉRICA SUAVE
+// ════════════════════════════════════════════
+const prevVals = {};
+function setValorAnimado(id, nuevoTexto, nuevoNum) {
+  const el = document.getElementById(id);
+  if (prevVals[id] !== undefined && prevVals[id] !== nuevoNum) {
+    el.classList.remove('actualizando');
+    void el.offsetWidth; // reflow para reiniciar animación
+    el.classList.add('actualizando');
+  }
+  prevVals[id] = nuevoNum;
+  el.innerHTML = nuevoTexto;
+}
+
+// ════════════════════════════════════════════
+//  FRASES Y ALERTAS
+// ════════════════════════════════════════════
 function generarFrase(d) {
   const frases = [];
-  let icono = "🌤️";
-
-  if (d.lluvia_mm > 0) {
-    frases.push("Está lloviendo. <strong>¡No olvides tu paraguas!</strong>");
-    icono = "🌧️";
-  }
-  if (d.temperatura >= UMBRAL.calorExtremo) {
-    frases.push("Calor extremo hoy. <strong>Hidratate bien y evita el sol directo.</strong>");
-    icono = "🥵";
-  } else if (d.temperatura >= UMBRAL.calor) {
-    frases.push("Hace calor. <strong>Lleva agua contigo.</strong>");
-    icono = "☀️";
-  } else if (d.temperatura < UMBRAL.frio) {
-    frases.push("Está haciendo frío. <strong>Abrígate antes de salir.</strong>");
-    icono = "🧥";
-  } else {
-    frases.push("Temperatura agradable hoy en Chilpancingo.");
-    icono = "😊";
-  }
-  if (d.humedad > UMBRAL.humedad) {
-    frases.push("Alta humedad, puede sentirse más caluroso de lo que marca el termómetro.");
-  }
-  if (d.viento_kmh > UMBRAL.viento) {
-    frases.push("Viento fuerte. <strong>Ten cuidado si sales en moto o bicicleta.</strong>");
-    icono = d.lluvia_mm > 0 ? "⛈️" : "💨";
-  }
-
-  document.getElementById("frase-icon").textContent = icono;
-  document.getElementById("frase-texto").innerHTML  = frases.join(" · ");
+  let icono = '🌤️';
+  if (d.lluvia_mm > 0)            { frases.push('Está lloviendo. <strong>¡No olvides tu paraguas!</strong>'); icono = '🌧️'; }
+  if (d.temperatura >= UMBRAL.calorExtremo) { frases.push('Calor extremo. <strong>Hidrátate y evita el sol directo.</strong>'); icono = '🥵'; }
+  else if (d.temperatura >= UMBRAL.calor)   { frases.push('Hace calor. <strong>Lleva agua contigo.</strong>'); icono = '☀️'; }
+  else if (d.temperatura < UMBRAL.frio)     { frases.push('Está haciendo frío. <strong>Abrígate antes de salir.</strong>'); icono = '🧥'; }
+  else                                       { frases.push('Temperatura agradable hoy en Chilpancingo.'); icono = '😊'; }
+  if (d.humedad > UMBRAL.humedad)  frases.push('Alta humedad, puede sentirse más caluroso.');
+  if (d.viento_kmh > UMBRAL.viento){ frases.push('Viento fuerte. <strong>Ten cuidado en moto o bicicleta.</strong>'); if (d.lluvia_mm > 0) icono = '⛈️'; else icono = '💨'; }
+  document.getElementById('frase-icon').textContent  = icono;
+  document.getElementById('frase-texto').innerHTML   = frases.join(' · ');
 }
 
-// ——— Alertas ———
 function generarAlertas(d) {
-  const alertas = [];
-  if (d.temperatura >= UMBRAL.calorExtremo) alertas.push("⚠️ Calor extremo: " + d.temperatura.toFixed(1) + "°C");
-  if (d.temperatura < UMBRAL.frio)          alertas.push("🥶 Temperatura baja: " + d.temperatura.toFixed(1) + "°C");
-  if (d.viento_kmh > UMBRAL.viento)         alertas.push("💨 Viento fuerte: " + d.viento_kmh.toFixed(1) + " km/h");
-  if (d.lluvia_mm > 5)                      alertas.push("🌧️ Lluvia intensa: " + d.lluvia_mm.toFixed(1) + " mm");
-  if (d.humedad > UMBRAL.humedad)           alertas.push("💧 Humedad alta: " + d.humedad.toFixed(0) + "%");
-
-  const banner = document.getElementById("banner-alerta");
-  if (alertas.length > 0) {
-    banner.innerHTML = "<strong>Alertas activas:</strong> " + alertas.join("  ·  ");
-    banner.classList.add("visible");
-  } else {
-    banner.classList.remove("visible");
-  }
+  const a = [];
+  if (d.temperatura >= UMBRAL.calorExtremo) a.push('⚠️ Calor extremo: '+d.temperatura.toFixed(1)+'°C');
+  if (d.temperatura < UMBRAL.frio)          a.push('🥶 Temperatura baja: '+d.temperatura.toFixed(1)+'°C');
+  if (d.viento_kmh > UMBRAL.viento)         a.push('💨 Viento fuerte: '+d.viento_kmh.toFixed(1)+' km/h');
+  if (d.lluvia_mm > 5)                      a.push('🌧️ Lluvia intensa: '+d.lluvia_mm.toFixed(1)+' mm');
+  if (d.humedad > UMBRAL.humedad)           a.push('💧 Humedad alta: '+d.humedad.toFixed(0)+'%');
+  const banner = document.getElementById('banner-alerta');
+  if (a.length) { banner.innerHTML = '<strong>Alertas activas:</strong> '+a.join('  ·  '); banner.classList.add('visible'); }
+  else banner.classList.remove('visible');
 }
 
-// ——— Datos actuales (tiempo real) ———
-const refActual = ref(db, "estacion/actual");
-onValue(refActual, (snap) => {
-  const d = snap.val();
-  if (!d) return;
+// ════════════════════════════════════════════
+//  ROSA DE LOS VIENTOS
+// ════════════════════════════════════════════
+function actualizarRosa(grados) {
+  const flecha = document.getElementById('rosa-flecha');
+  flecha.setAttribute('transform', `rotate(${grados}, 50, 50)`);
+}
 
-  document.getElementById("dot").classList.add("vivo");
-  document.getElementById("estado-txt").textContent = "En vivo";
+// ════════════════════════════════════════════
+//  DATOS ACTUALES — tiempo real
+// ════════════════════════════════════════════
+const refActual = ref(db, 'estacion/actual');
+onValue(refActual, snap => {
+  const d = snap.val(); if (!d) return;
 
-  document.getElementById("val-temp").innerHTML    = d.temperatura.toFixed(1) + '<span class="card-unidad">°C</span>';
-  document.getElementById("val-hum").innerHTML     = d.humedad.toFixed(0) + '<span class="card-unidad">%</span>';
-  document.getElementById("val-pres").innerHTML    = d.presion.toFixed(1) + '<span class="card-unidad">hPa</span>';
-  document.getElementById("val-viento").innerHTML  = d.viento_kmh.toFixed(1) + '<span class="card-unidad">km/h</span>';
-  document.getElementById("val-dir").textContent   = d.viento_dir;
-  document.getElementById("val-lluvia").innerHTML  = d.lluvia_mm.toFixed(1) + '<span class="card-unidad">mm</span>';
+  document.getElementById('dot').classList.add('vivo');
+  document.getElementById('estado-txt').textContent = 'En vivo';
 
-  document.getElementById("sub-temp").textContent   = d.temperatura >= UMBRAL.calorExtremo ? "🔴 Calor extremo"
-    : d.temperatura >= UMBRAL.calor ? "🟠 Calor"
-    : d.temperatura < UMBRAL.frio   ? "🔵 Frío"
-    : "🟢 Normal";
-  document.getElementById("sub-hum").textContent    = d.humedad > UMBRAL.humedad ? "Muy húmedo" : "Normal";
-  document.getElementById("sub-viento").textContent = d.viento_kmh > UMBRAL.viento ? "⚠️ Viento fuerte" : "Normal";
-  document.getElementById("sub-dir").textContent    = d.viento_grados?.toFixed(0) + "°";
-  document.getElementById("sub-lluvia").textContent = d.lluvia_mm > 0 ? "Lloviendo" : "Sin lluvia";
+  setValorAnimado('val-temp',   d.temperatura.toFixed(1)+'<span class="card-unidad">°C</span>', d.temperatura);
+  setValorAnimado('val-hum',    d.humedad.toFixed(0)+'<span class="card-unidad">%</span>',      d.humedad);
+  setValorAnimado('val-pres',   d.presion.toFixed(1)+'<span class="card-unidad">hPa</span>',    d.presion);
+  setValorAnimado('val-viento', d.viento_kmh.toFixed(1)+'<span class="card-unidad">km/h</span>',d.viento_kmh);
+  setValorAnimado('val-lluvia', d.lluvia_mm.toFixed(1)+'<span class="card-unidad">mm</span>',   d.lluvia_mm);
 
-  const ts = new Date(d.timestamp);
-  document.getElementById("ultima-act").textContent =
-    "Última actualización: " + ts.toLocaleDateString("es-MX") + " " + ts.toLocaleTimeString("es-MX");
+  document.getElementById('sub-temp').textContent   = d.temperatura >= UMBRAL.calorExtremo ? '🔴 Calor extremo' : d.temperatura >= UMBRAL.calor ? '🟠 Calor' : d.temperatura < UMBRAL.frio ? '🔵 Frío' : '🟢 Normal';
+  document.getElementById('sub-hum').textContent    = d.humedad > UMBRAL.humedad ? 'Muy húmedo' : 'Normal';
+  document.getElementById('sub-viento').textContent = d.viento_kmh > UMBRAL.viento ? '⚠️ Viento fuerte' : 'Normal';
+  document.getElementById('sub-dir-deg').textContent= (d.viento_grados||0).toFixed(0)+'° · '+d.viento_dir;
+  document.getElementById('sub-lluvia').textContent = d.lluvia_mm > 0 ? 'Lloviendo' : 'Sin lluvia';
 
+  actualizarRosa(d.viento_grados || 0);
+  setSkyState(d.lluvia_mm, d.viento_kmh, d.temperatura);
   generarFrase(d);
   generarAlertas(d);
+
+  const ts = new Date(d.timestamp);
+  document.getElementById('ultima-act').textContent = 'Última actualización: '+ts.toLocaleDateString('es-MX')+' '+ts.toLocaleTimeString('es-MX');
 });
 
-// ——— Gráficas ———
-const chartConfig = (label, color) => ({
-  type: "line",
-  data: { labels: [], datasets: [{ label, data: [],
-    borderColor: color,
-    backgroundColor: color + "18",
-    borderWidth: 2,
-    pointRadius: 2,
-    pointHoverRadius: 4,
-    tension: 0.4,
-    fill: true,
-  }]},
-  options: {
-    responsive: true,
-    animation: false,
-    plugins: { legend: { display: false }, tooltip: {
-      backgroundColor: "#1a2235",
-      titleColor: "#94a3b8",
-      bodyColor: "#f1f5f9",
-      borderColor: "rgba(255,255,255,0.1)",
-      borderWidth: 1,
-    }},
-    scales: {
-      x: { ticks: { color: "#475569", font: { family: "Space Mono", size: 9 }, maxTicksLimit: 6 },
-           grid: { color: "rgba(255,255,255,0.04)" }},
-      y: { ticks: { color: "#475569", font: { family: "Space Mono", size: 9 } },
-           grid: { color: "rgba(255,255,255,0.04)" }},
+// ════════════════════════════════════════════
+//  GRÁFICAS
+// ════════════════════════════════════════════
+const chartCfg = (label, color) => ({
+  type:'line', data:{labels:[],datasets:[{label,data:[],borderColor:color,backgroundColor:color+'18',borderWidth:2,pointRadius:2,pointHoverRadius:4,tension:.4,fill:true}]},
+  options:{responsive:true,animation:false,
+    plugins:{legend:{display:false},tooltip:{backgroundColor:'#1a2235',titleColor:'#94a3b8',bodyColor:'#f1f5f9',borderColor:'rgba(255,255,255,.1)',borderWidth:1}},
+    scales:{
+      x:{ticks:{color:'#475569',font:{family:'Space Mono',size:9},maxTicksLimit:6},grid:{color:'rgba(255,255,255,.04)'}},
+      y:{ticks:{color:'#475569',font:{family:'Space Mono',size:9}},grid:{color:'rgba(255,255,255,.04)'}},
     }
   }
 });
 
 const charts = {
-  temp:   new Chart(document.getElementById("chart-temp"),   chartConfig("Temperatura", "#fb923c")),
-  hum:    new Chart(document.getElementById("chart-hum"),    chartConfig("Humedad",     "#38bdf8")),
-  pres:   new Chart(document.getElementById("chart-pres"),   chartConfig("Presión",     "#818cf8")),
-  viento: new Chart(document.getElementById("chart-viento"), chartConfig("Viento",      "#a78bfa")),
+  temp:   new Chart(document.getElementById('chart-temp'),   chartCfg('Temperatura','#fb923c')),
+  hum:    new Chart(document.getElementById('chart-hum'),    chartCfg('Humedad',    '#38bdf8')),
+  pres:   new Chart(document.getElementById('chart-pres'),   chartCfg('Presión',    '#818cf8')),
+  viento: new Chart(document.getElementById('chart-viento'), chartCfg('Viento',     '#a78bfa')),
 };
 
 function actualizarGraficas(registros) {
-  const labels  = [], temps = [], hums = [], press = [], vientos = [];
+  const labels=[],temps=[],hums=[],press=[],vientos=[];
   registros.forEach(r => {
     const t = new Date(r.timestamp);
-    labels.push(t.toLocaleTimeString("es-MX", { hour: "2-digit", minute: "2-digit" }));
-    temps.push(r.temperatura);
-    hums.push(r.humedad);
-    press.push(r.presion);
-    vientos.push(r.viento_kmh);
+    labels.push(t.toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'}));
+    temps.push(r.temperatura); hums.push(r.humedad);
+    press.push(r.presion);     vientos.push(r.viento_kmh);
   });
-  const update = (chart, data) => { chart.data.labels = labels; chart.data.datasets[0].data = data; chart.update(); };
-  update(charts.temp,   temps);
-  update(charts.hum,    hums);
-  update(charts.pres,   press);
-  update(charts.viento, vientos);
+  const upd = (c,d) => { c.data.labels=labels; c.data.datasets[0].data=d; c.update(); };
+  upd(charts.temp,temps); upd(charts.hum,hums); upd(charts.pres,press); upd(charts.viento,vientos);
 }
 
-// ——— Tabla ———
+// ════════════════════════════════════════════
+//  TABLA
+// ════════════════════════════════════════════
 function actualizarTabla(registros) {
-  const tbody = document.getElementById("tabla-body");
-  tbody.innerHTML = "";
-  [...registros].reverse().slice(0, 50).forEach(r => {
-    const t    = new Date(r.timestamp);
-    const fecha = t.toLocaleDateString("es-MX") + " " + t.toLocaleTimeString("es-MX");
-    const tempColor = r.temperatura >= UMBRAL.calorExtremo ? "#f87171"
-                    : r.temperatura >= UMBRAL.calor        ? "#fb923c"
-                    : r.temperatura < UMBRAL.frio          ? "#60a5fa" : "#34d399";
+  const tbody = document.getElementById('tabla-body');
+  tbody.innerHTML = '';
+  [...registros].reverse().slice(0,50).forEach(r => {
+    const t = new Date(r.timestamp);
+    const fecha = t.toLocaleDateString('es-MX')+' '+t.toLocaleTimeString('es-MX');
+    const tc = r.temperatura >= UMBRAL.calorExtremo ? '#f87171' : r.temperatura >= UMBRAL.calor ? '#fb923c' : r.temperatura < UMBRAL.frio ? '#60a5fa' : '#34d399';
     tbody.innerHTML += `<tr>
       <td style="font-family:'Space Mono',monospace;font-size:11px;color:#64748b">${fecha}</td>
-      <td><span class="badge" style="background:${tempColor}22;color:${tempColor}">${r.temperatura.toFixed(1)}°C</span></td>
+      <td><span class="badge" style="background:${tc}22;color:${tc}">${r.temperatura.toFixed(1)}°C</span></td>
       <td>${r.humedad.toFixed(0)}%</td>
       <td>${r.presion.toFixed(1)} hPa</td>
       <td>${r.viento_kmh.toFixed(1)} km/h</td>
@@ -608,32 +588,72 @@ function actualizarTabla(registros) {
       <td>${r.lluvia_mm.toFixed(1)} mm</td>
     </tr>`;
   });
-  document.getElementById("tabla-cargando").style.display = "none";
-  document.getElementById("tabla").style.display = "table";
+  document.getElementById('tabla-cargando').style.display = 'none';
+  document.getElementById('tabla').style.display = 'table';
 }
 
-// ——— Cargar historial según rango ———
+// ════════════════════════════════════════════
+//  RACHAS Y ESTADÍSTICAS DEL DÍA
+// ════════════════════════════════════════════
+function calcularRachas(registros) {
+  if (!registros.length) return;
+
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const hoyRegs = registros.filter(r => new Date(r.timestamp) >= hoy);
+
+  // Máx y mín del día
+  if (hoyRegs.length) {
+    const temps = hoyRegs.map(r => r.temperatura);
+    document.getElementById('temp-max-hoy').textContent = Math.max(...temps).toFixed(1)+'°C';
+    document.getElementById('temp-min-hoy').textContent = Math.min(...temps).toFixed(1)+'°C';
+  }
+
+  // Agrupar por día para calcular rachas
+  const porDia = {};
+  registros.forEach(r => {
+    const d = new Date(r.timestamp); d.setHours(0,0,0,0);
+    const key = d.getTime();
+    if (!porDia[key]) porDia[key] = { lluvia: 0, maxTemp: -Infinity };
+    porDia[key].lluvia  += r.lluvia_mm;
+    porDia[key].maxTemp  = Math.max(porDia[key].maxTemp, r.temperatura);
+  });
+
+  const dias = Object.keys(porDia).sort((a,b)=>b-a); // más reciente primero
+  let sinLluvia = 0, rachaCalor = 0;
+  for (const dk of dias) {
+    if (porDia[dk].lluvia === 0) sinLluvia++; else break;
+  }
+  for (const dk of dias) {
+    if (porDia[dk].maxTemp >= UMBRAL.calor) rachaCalor++; else break;
+  }
+
+  document.getElementById('dias-sin-lluvia').textContent = sinLluvia + (sinLluvia === 1 ? ' día' : ' días');
+  document.getElementById('racha-calor').textContent     = rachaCalor + (rachaCalor === 1 ? ' día' : ' días');
+}
+
+// ════════════════════════════════════════════
+//  HISTORIAL
+// ════════════════════════════════════════════
 let horasRango = 6;
 function cargarHistorial() {
-  const limite = Math.ceil(horasRango * 6) + 10; // ~6 registros/hora (cada 10min)
-  const q = query(ref(db, "estacion/historial"), orderByKey(), limitToLast(limite));
-  onValue(q, (snap) => {
-    const datos = snap.val();
-    if (!datos) return;
-    const ahora   = Date.now();
-    const corte   = ahora - horasRango * 3600 * 1000;
+  const limite = Math.ceil(horasRango * 6) + 10;
+  const q = query(ref(db,'estacion/historial'), orderByKey(), limitToLast(limite));
+  onValue(q, snap => {
+    const datos = snap.val(); if (!datos) return;
+    const corte = Date.now() - horasRango * 3600 * 1000;
     const registros = Object.values(datos)
       .filter(r => new Date(r.timestamp).getTime() >= corte)
-      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      .sort((a,b) => new Date(a.timestamp) - new Date(b.timestamp));
     actualizarGraficas(registros);
     actualizarTabla(registros);
+    calcularRachas(registros);
   }, { onlyOnce: true });
 }
 
 window.cambiarRango = function(horas, btn) {
   horasRango = horas;
-  document.querySelectorAll(".btn-rango").forEach(b => b.classList.remove("activo"));
-  btn.classList.add("activo");
+  document.querySelectorAll('.btn-rango').forEach(b => b.classList.remove('activo'));
+  btn.classList.add('activo');
   cargarHistorial();
 };
 
